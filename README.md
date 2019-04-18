@@ -6,5 +6,6 @@ El juego consiste en formar líneas de 4 fichas, en forma horizontal, vertical o
 
 # Comandos
 gcc -o MODULO main.s game.s
+
 ./MODULO
 
