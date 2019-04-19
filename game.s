@@ -10,16 +10,19 @@
 .align 2
 
 @Matrix column-based
-currentColumn: .word 0
 column1: .word 0,0,0,0
 column2: .word 0,0,0,0
 column3: .word 0,0,0,0
 column4: .word 0,0,0,0
 
+@DesiredColumn
+currentColumn: .word 0
+
 @Console messages
 inputColumnMessage: .asciz "Ingrese columna jugador %d (1, 2, 3, 4): "
 errorMessage: .asciz "--- Numero invalido, intente de nuevo ---\n"
 fullMatrixMessage: .asciz "--- La columna se encuentra llena! ---\n"
+
 @Inputs
 columnEntered: .asciz "%d"
 matrixRow: .asciz "|%d|"
@@ -28,8 +31,6 @@ enter: .asciz "\n"
 
 .text
 .align 2
-
-
 .global printBoard
 printBoard:
     /*inefficient way of printing, improve this part later*/
@@ -203,5 +204,187 @@ finishedInsertInput:
 	1 = player 1 won
 	2 = player 2 won
  */
+/**
+ * Verify winner
+ * Return: winner on r0,  0 for no winner yet, 1 for player 1, 2 for player 2
+*/
+.global getWinner
+getWinner:
+	push {lr}
+	/*Variables*/
+	column1 .req r2 
+	column2 .req r3 
+	column3 .req r4 
+	column4 .req r5 
 
+	@variables for rows
+	row1 .req r6
+	row2 .req r7
+	row3 .req r8
+	row4 .req r9
 
+	@variable for winner
+	winner .req r10
+	cont .req r11
+
+	@Load columns from the board
+	ldr column1, =column1
+	ldr column2, =column2
+	ldr column3, =column3
+	ldr column4, =column4
+	mov cont, #0
+
+loopVertical:
+	@Load each value
+	ldr row1, [column1]
+	ldr row2, [column2]
+	ldr row3, [column3]
+	ldr row4, [column4]
+
+	@Compare each value
+	cmp row1, row2 @if(row1 == row2)
+	moveq winner, row1 @winner = row1
+	cmp row3, row4 @if(row3 == row4)
+	cmpeq winner, row4 @if(winner == row4)
+	beq verifyFinish		 @If all rows have the same value
+	movne winner, #0 		@winner = 0
+
+	@Mov to next value
+	add column1, #4
+	add column2, #4
+	add column3, #4
+	add column4, #4
+	add cont, #1 @cont++
+	cmp cont, #4 @while cont < 4
+	bne loopVertical 	@loop loopVertical
+
+loopHorizontal:
+	@load value from each value from the current column
+	ldr row1, [column1]
+	add column1, #4
+	ldr row2, [column1]
+	add column1, #4
+	ldr row3, [column1]
+	add column1, #4
+	ldr row4, [column1]
+	@Compare each value
+	cmp row1, row2 @if(row1 == row2)
+	moveq winner, row1 @winner = row1
+	cmp row3, row4 @if(row3 == row4)
+	cmpeq winner, row4 @if(winner == row4)
+	beq verifyFinish		 @If all rows have the same value
+	movne winner, #0 		@winner = 0
+
+	@load value from each value from the current column
+	ldr row1, [column2]
+	add column2, #4
+	ldr row2, [column2]
+	add column2, #4
+	ldr row3, [column2]
+	add column2, #4
+	ldr row4, [column2]
+	@Compare each value
+	cmp row1, row2 @if(row1 == row2)
+	moveq winner, row1 @winner = row1
+	cmp row3, row4 @if(row3 == row4)
+	cmpeq winner, row4 @if(winner == row4)
+	beq verifyFinish		 @If all rows have the same value
+	movne winner, #0 		@winner = 0
+
+	@load value from each value from the current column
+	ldr row1, [column3]
+	add column3, #4
+	ldr row2, [column3]
+	add column3, #4
+	ldr row3, [column3]
+	add column3, #4
+	ldr row4, [column3]
+	@Compare each value
+	cmp row1, row2 @if(row1 == row2)
+	moveq winner, row1 @winner = row1
+	cmp row3, row4 @if(row3 == row4)
+	cmpeq winner, row4 @if(winner == row4)
+	beq verifyFinish		 @If all rows have the same value
+	movne winner, #0 		@winner = 0
+
+	@load value from each value from the current column
+	ldr row1, [column4]
+	add column4, #4
+	ldr row2, [column4]
+	add column4, #4
+	ldr row3, [column4]
+	add column4, #4
+	ldr row4, [column4]
+	@Compare each value
+	cmp row1, row2 @if(row1 == row2)
+	moveq winner, row1 @winner = row1
+	cmp row3, row4 @if(row3 == row4)
+	cmpeq winner, row4 @if(winner == row4)
+	beq verifyFinish		 @If all rows have the same value
+	movne winner, #0 		@winner = 0
+
+	@Reload all the values
+	ldr column1, =column1
+	ldr column2, =column2
+	ldr column3, =column3
+	ldr column4, =column4
+
+verifyDiagonals:
+	@reload values
+	ldr column1, =column1
+	ldr column2, =column2
+	ldr column3, =column3
+	ldr column4, =column4
+
+	diagonalFromUpToDown:
+		ldr row1, [column1]
+		add column2, #4
+		ldr row2, [column2]
+		add column3, #8
+		ldr row3, [column3]
+		add column4, #12
+		ldr row4, [column4]
+
+		cmp row1, row2 @if(row1 == row2)
+		moveq winner, row1 @winner = row1
+		cmp row3, row4 @if(row3 == row4)
+		cmpeq winner, row4 @if(winner == row4)
+		beq verifyFinish		 @If all rows have the same value
+		movne winner, #0 		@winner = 0
+
+	/*	
+	* Note: this part doesn't reset the values from memory
+	* 		only works with the current values above
+	*/
+	diagonalFromDownToUp:
+		add column1, #12
+		ldr row1, [column1]
+		add column2, #4
+		ldr row2, [column2]
+		sub column3, #4
+		ldr row3, [column3]
+		sub column4, #12
+		ldr row4, [column4]
+		
+		cmp row1, row2 @if(row1 == row2)
+		moveq winner, row1 @winner = row1
+		cmp row3, row4 @if(row3 == row4)
+		cmpeq winner, row4 @if(winner == row4)
+		beq verifyFinish		 @If all rows have the same value
+		movne winner, #0 		@winner = 0
+
+verifyFinish:
+	mov r0, winner @move the winner to r0
+	@Unlink all variables from registers
+	.unreq column1
+	.unreq column2
+	.unreq column3
+	.unreq column4
+	.unreq row1
+	.unreq row2
+	.unreq row3
+	.unreq row4
+	.unreq winner
+	.unreq cont
+	pop {lr}
+	mov pc, lr @return r0
