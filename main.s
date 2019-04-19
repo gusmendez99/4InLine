@@ -60,10 +60,10 @@ playerOneInput:
 	bl insertInput
 	
 	@Printing game board
-	bl printMatrix
+	bl printBoard
 	
 	@Check for a winner
-	/*bl getWinner	@pending Subroutine on Game Script, game.s */	
+	bl getWinner	 @Subroutine on Game Script (game.s)  	
 	mov winner, r0
 	cmp winner, #0
 	bne printWinner
@@ -87,7 +87,7 @@ playerTwoInput:
 	bl printBoard
 	
 	@Check for a winner
-	/*bl getWinner	@pending Subroutine on Game Script, game.s */		
+	bl getWinner			@Subroutine on Game Script (game.s)  		
 	mov winner, r0
 	cmp winner, #0	@If there's a tie
 	bne printWinner
