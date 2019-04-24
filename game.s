@@ -226,12 +226,17 @@ getWinner:
 	winner .req r10
 	cont .req r11
 
+	@Pivot variable
+	fullRow .req r12
+
 	@Load columns from the board
 	ldr column1, =column1
 	ldr column2, =column2
 	ldr column3, =column3
 	ldr column4, =column4
+
 	mov cont, #0
+	mov fullRow, #0
 
 loopVertical:
 	@Load each value
@@ -245,8 +250,12 @@ loopVertical:
 	moveq winner, row1 @winner = row1
 	cmp row3, row4 @if(row3 == row4)
 	cmpeq winner, row4 @if(winner == row4)
-	beq verifyFinish		 @If all rows have the same value
-	movne winner, #0 		@winner = 0
+	moveq fullRow, #1	@The four rows have the same value
+	cmp fullRow, #1		@compares if all rows were filled with zeros
+	cmpeq winner, #0
+	bne verifyFinish		 @If all rows have the same value	
+	mov winner, #0 		@winner = 0
+	mov fullRow, #0		@There's no winner yet
 
 	@Mov to next value
 	add column1, #4
@@ -266,13 +275,18 @@ loopHorizontal:
 	ldr row3, [column1]
 	add column1, #4
 	ldr row4, [column1]
+	
 	@Compare each value
 	cmp row1, row2 @if(row1 == row2)
 	moveq winner, row1 @winner = row1
 	cmp row3, row4 @if(row3 == row4)
 	cmpeq winner, row4 @if(winner == row4)
-	beq verifyFinish		 @If all rows have the same value
-	movne winner, #0 		@winner = 0
+	moveq fullRow, #1	@The four rows have the same value
+	cmp fullRow, #1		@compares if all rows were filled with zeros
+	cmpeq winner, #0
+	bne verifyFinish		 @If all rows have the same value
+	mov winner, #0 		@winner = 0
+	mov fullRow, #0		@There's no winner yet
 
 	@load value from each value from the current column
 	ldr row1, [column2]
@@ -282,13 +296,18 @@ loopHorizontal:
 	ldr row3, [column2]
 	add column2, #4
 	ldr row4, [column2]
+
 	@Compare each value
 	cmp row1, row2 @if(row1 == row2)
 	moveq winner, row1 @winner = row1
 	cmp row3, row4 @if(row3 == row4)
 	cmpeq winner, row4 @if(winner == row4)
-	beq verifyFinish		 @If all rows have the same value
-	movne winner, #0 		@winner = 0
+	moveq fullRow, #1	@The four rows have the same value
+	cmp fullRow, #1		@compares if all rows were filled with zeros
+	cmpeq winner, #0
+	bne verifyFinish		 @If all rows have the same value	
+	mov winner, #0 		@winner = 0
+	mov fullRow, #0		@There's no winner yet
 
 	@load value from each value from the current column
 	ldr row1, [column3]
@@ -298,13 +317,18 @@ loopHorizontal:
 	ldr row3, [column3]
 	add column3, #4
 	ldr row4, [column3]
+	
 	@Compare each value
 	cmp row1, row2 @if(row1 == row2)
 	moveq winner, row1 @winner = row1
 	cmp row3, row4 @if(row3 == row4)
 	cmpeq winner, row4 @if(winner == row4)
-	beq verifyFinish		 @If all rows have the same value
-	movne winner, #0 		@winner = 0
+	moveq fullRow, #1	@The four rows have the same value
+	cmp fullRow, #1		@compares if all rows were filled with zeros
+	cmpeq winner, #0
+	bne verifyFinish		 @If all rows have the same value	
+	mov winner, #0 		@winner = 0
+	mov fullRow, #0		@There's no winner yet
 
 	@load value from each value from the current column
 	ldr row1, [column4]
@@ -314,22 +338,27 @@ loopHorizontal:
 	ldr row3, [column4]
 	add column4, #4
 	ldr row4, [column4]
+	
 	@Compare each value
 	cmp row1, row2 @if(row1 == row2)
 	moveq winner, row1 @winner = row1
 	cmp row3, row4 @if(row3 == row4)
 	cmpeq winner, row4 @if(winner == row4)
-	beq verifyFinish		 @If all rows have the same value
-	movne winner, #0 		@winner = 0
+	moveq fullRow, #1	@The four rows have the same value
+	cmp fullRow, #1		@compares if all rows were filled with zeros
+	cmpeq winner, #0
+	bne verifyFinish		 @If all rows have the same value	
+	mov winner, #0 		@winner = 0
+	mov fullRow, #0		@There's no winner yet
 
-	@Reload all the values
+	/*@Reload all the values
 	ldr column1, =column1
 	ldr column2, =column2
 	ldr column3, =column3
-	ldr column4, =column4
+	ldr column4, =column4*/
 
 verifyDiagonals:
-	@reload values
+	@Reload values
 	ldr column1, =column1
 	ldr column2, =column2
 	ldr column3, =column3
@@ -344,12 +373,17 @@ verifyDiagonals:
 		add column4, #12
 		ldr row4, [column4]
 
+		@Compare each value
 		cmp row1, row2 @if(row1 == row2)
 		moveq winner, row1 @winner = row1
 		cmp row3, row4 @if(row3 == row4)
 		cmpeq winner, row4 @if(winner == row4)
-		beq verifyFinish		 @If all rows have the same value
-		movne winner, #0 		@winner = 0
+		moveq fullRow, #1	@The four rows have the same value
+		cmp fullRow, #1		@compares if all rows were filled with zeros
+		cmpeq winner, #0
+		bne verifyFinish		 @If all rows have the same value	
+		mov winner, #0 		@winner = 0
+		mov fullRow, #0		@There's no winner yet
 
 	/*	
 	* Note: this part doesn't reset the values from memory
@@ -365,12 +399,17 @@ verifyDiagonals:
 		sub column4, #12
 		ldr row4, [column4]
 		
+		@Compare each value
 		cmp row1, row2 @if(row1 == row2)
 		moveq winner, row1 @winner = row1
 		cmp row3, row4 @if(row3 == row4)
 		cmpeq winner, row4 @if(winner == row4)
-		beq verifyFinish		 @If all rows have the same value
-		movne winner, #0 		@winner = 0
+		moveq fullRow, #1	@The four rows have the same value
+		cmp fullRow, #1		@compares if all rows were filled with zeros
+		cmpeq winner, #0
+		bne verifyFinish		 @If all rows have the same value	
+		mov winner, #0 		@winner = 0
+		mov fullRow, #0		@There's no winner yet
 
 verifyFinish:
 	mov r0, winner @move the winner to r0
