@@ -16,13 +16,12 @@ emptyInputMessage: .asciz "- Espacio vacio representado por ' '.\n"
 winnerMessage: .asciz "NUEVO GANADOR: Jugador %d!\n"
 tieMessage: .asciz "Ha ocurrido un EMPATE!"
 
-
 .text
 .align 2
 .global main
 .type main,%function
 main:
-	stmfd sp!,{lr}
+	stmfd sp!, {lr}
 
 	winner .req r5
 	cont .req r6
@@ -55,8 +54,8 @@ playerOneInput:
 	bl input
 
 	@Get the inputs, and then insert...
-	mov r1, r0
-	mov r0, #1	
+	mov r1, r0		@Column entered
+	mov r0, #1		@Player
 	bl insertInput
 	
 	@Printing game board
@@ -79,8 +78,8 @@ playerTwoInput:
 	bl input
 	
 	@Get the inputs, and then insert...
-	mov r1, r0
-	mov r0, #2	
+	mov r1, r0		@Column entered
+	mov r0, #2		@Player	
 	bl insertInput
 
 	@Printing game board

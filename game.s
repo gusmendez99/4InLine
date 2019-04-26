@@ -27,10 +27,8 @@ columnEntered: .asciz "%d"
 matrixRow: .asciz "|%d|"
 enter: .asciz "\n"
 
-
 .text
 .align 2
-
 
 /*******************************
 
@@ -47,32 +45,32 @@ input:
  	push {lr} @Save the link register
  	mov player, r0 @movs param to variable player
 
-inputBody:
- 	ldr r0, =inputColumnMessage @Loads input column message
- 	mov r1, player @Loads player
-	bl printf @Display message
-	ldr r0, =columnEntered @load input format
-	ldr r1, =currentColumn @Load addres to store input
-	bl scanf @Store the input
-	ldr r0, =currentColumn @Load input column entered
-	ldr column, [r0] @Load input value
-	cmp column, #1 @if(column < 1)
-	blt wrongInput 
-	cmp column, #4 @else if(column > 4)
-	bgt wrongInput
-	ble finishedInput
+	inputBody:
+		ldr r0, =inputColumnMessage @Loads input column message
+		mov r1, player @Loads player
+		bl printf @Display message
+		ldr r0, =columnEntered @load input format
+		ldr r1, =currentColumn @Load addres to store input
+		bl scanf @Store the input
+		ldr r0, =currentColumn @Load input column entered
+		ldr column, [r0] @Load input value
+		cmp column, #1 @if(column < 1)
+		blt wrongInput 
+		cmp column, #4 @else if(column > 4)
+		bgt wrongInput
+		ble finishedInput
 
-wrongInput:
-	ldr r0, =errorMessage @Load error message
-	bl printf @Display error message
-	b inputBody @Go back to input inputBody
+	wrongInput:
+		ldr r0, =errorMessage @Load error message
+		bl printf @Display error message
+		b inputBody @Go back to input inputBody
 
-finishedInput:
-	mov r0, column @mov the column value to r0
-	.unreq player @Unlink the player variable from r5
-	.unreq column @Unlink the cplumn variable from r6
-	pop {lr} @Retrieve link register
-	mov pc, lr @Return r0
+	finishedInput:
+		mov r0, column @mov the column value to r0
+		.unreq player @Unlink the player variable from r5
+		.unreq column @Unlink the cplumn variable from r6
+		pop {lr} @Retrieve link register
+		mov pc, lr @Return r0
 
 
 /*******************************
@@ -92,7 +90,7 @@ insertInput:
 	box	   .req r6
 	player .req r7
 	count  .req r8 
-	columnInput .req r9
+	@columnInput .req r9
 
 	push {lr} @store the link register
 	mov player, r0 @store the player passed as a param
@@ -104,32 +102,34 @@ insertInput:
 	cmp column, #2 
 	ldreq column, =column2
 	cmp column, #3 
-	ldreq column, =column3 
+	ldreq column, =column3
 	cmp column, #4 
 	ldreq column, =column4 
-	mov columnInput, column @store column input
+	@mov columnInput, column @store memory address of column entered
 
-loopVector:
-	ldr box, [column] @load the current column element
-	cmp box, #0 @if element is empty
-	streq player, [column] @store the player in such element
-	beq finishedInsertInput @Go to finishedInsertInput
-	add column, #4
-	add count, #1
-	cmp count, #4 @if count != 4
-	bne loopVector @true go to loopVector
-	ldr r0, =fullMatrixMessage @ else, load fullMatrixMessage message
-	bl printf @displays message
+	loopVector:
+		ldr box, [column] @load the current column element
+		cmp box, #0 @if element is empty
+		streq player, [column] @store the player in such element
+		beq finishedInsertInput @Go to finishedInsertInput
+		add column, #4
+		add count, #1
+		cmp count, #4 @if count != 4
+		bne loopVector @true go to loopVector
+		ldr r0, =fullMatrixMessage @ else, load fullMatrixMessage message
+		bl printf @displays message
 
-finishedInsertInput:
-	mov r0, columnInput @r0 = address of the vector
-	@Unlink variables from registers
-	.unreq column
-	.unreq box
-	.unreq player
-	.unreq count
-	pop {lr} @Retrieve the link register
-	mov pc, lr @return r0
+	finishedInsertInput:
+		@mov r0, columnInput @r0 = address of the vector
+		mov r0, column @r0 = address of the vector
+		@Unlink variables from registers
+		.unreq column
+		.unreq box
+		.unreq player
+		.unreq count
+		@.unreq columnInput
+		pop {lr} @Retrieve the link register
+		mov pc, lr @return r0
 
 .global printBoard
 printBoard:
@@ -226,9 +226,6 @@ getWinner:
 	winner .req r10
 	cont .req r11
 
-	@Pivot variable
-	fullRow .req r12
-
 	@Load columns from the board
 	ldr column1, =column1
 	ldr column2, =column2
@@ -236,7 +233,6 @@ getWinner:
 	ldr column4, =column4
 
 	mov cont, #0
-	mov fullRow, #0
 
 loopVertical:
 	@Load each value
@@ -247,15 +243,12 @@ loopVertical:
 
 	@Compare each value
 	cmp row1, row2 @if(row1 == row2)
+	cmpeq row3, row4 @if(row3 == row4)
+	cmpeq row1, row4 @if(row1 == row4 means there's a winner)
 	moveq winner, row1 @winner = row1
-	cmp row3, row4 @if(row3 == row4)
-	cmpeq winner, row4 @if(winner == row4)
-	moveq fullRow, #1	@The four rows have the same value
-	cmp fullRow, #1		@compares if all rows were filled with zeros
-	cmpeq winner, #0
+	cmp winner, #0
 	bne verifyFinish		 @If all rows have the same value	
 	mov winner, #0 		@winner = 0
-	mov fullRow, #0		@There's no winner yet
 
 	@Mov to next value
 	add column1, #4
@@ -278,15 +271,12 @@ loopHorizontal:
 	
 	@Compare each value
 	cmp row1, row2 @if(row1 == row2)
+	cmpeq row3, row4 @if(row3 == row4)
+	cmpeq row1, row4 @if(row1 == row4 means there's a winner)
 	moveq winner, row1 @winner = row1
-	cmp row3, row4 @if(row3 == row4)
-	cmpeq winner, row4 @if(winner == row4)
-	moveq fullRow, #1	@The four rows have the same value
-	cmp fullRow, #1		@compares if all rows were filled with zeros
-	cmpeq winner, #0
-	bne verifyFinish		 @If all rows have the same value
+	cmp winner, #0
+	bne verifyFinish		 @If all rows have the same value	
 	mov winner, #0 		@winner = 0
-	mov fullRow, #0		@There's no winner yet
 
 	@load value from each value from the current column
 	ldr row1, [column2]
@@ -299,15 +289,12 @@ loopHorizontal:
 
 	@Compare each value
 	cmp row1, row2 @if(row1 == row2)
+	cmpeq row3, row4 @if(row3 == row4)
+	cmpeq row1, row4 @if(row1 == row4 means there's a winner)
 	moveq winner, row1 @winner = row1
-	cmp row3, row4 @if(row3 == row4)
-	cmpeq winner, row4 @if(winner == row4)
-	moveq fullRow, #1	@The four rows have the same value
-	cmp fullRow, #1		@compares if all rows were filled with zeros
-	cmpeq winner, #0
+	cmp winner, #0
 	bne verifyFinish		 @If all rows have the same value	
 	mov winner, #0 		@winner = 0
-	mov fullRow, #0		@There's no winner yet
 
 	@load value from each value from the current column
 	ldr row1, [column3]
@@ -320,15 +307,12 @@ loopHorizontal:
 	
 	@Compare each value
 	cmp row1, row2 @if(row1 == row2)
+	cmpeq row3, row4 @if(row3 == row4)
+	cmpeq row1, row4 @if(row1 == row4 means there's a winner)
 	moveq winner, row1 @winner = row1
-	cmp row3, row4 @if(row3 == row4)
-	cmpeq winner, row4 @if(winner == row4)
-	moveq fullRow, #1	@The four rows have the same value
-	cmp fullRow, #1		@compares if all rows were filled with zeros
-	cmpeq winner, #0
+	cmp winner, #0
 	bne verifyFinish		 @If all rows have the same value	
 	mov winner, #0 		@winner = 0
-	mov fullRow, #0		@There's no winner yet
 
 	@load value from each value from the current column
 	ldr row1, [column4]
@@ -341,15 +325,12 @@ loopHorizontal:
 	
 	@Compare each value
 	cmp row1, row2 @if(row1 == row2)
+	cmpeq row3, row4 @if(row3 == row4)
+	cmpeq row1, row4 @if(row1 == row4 means there's a winner)
 	moveq winner, row1 @winner = row1
-	cmp row3, row4 @if(row3 == row4)
-	cmpeq winner, row4 @if(winner == row4)
-	moveq fullRow, #1	@The four rows have the same value
-	cmp fullRow, #1		@compares if all rows were filled with zeros
-	cmpeq winner, #0
+	cmp winner, #0
 	bne verifyFinish		 @If all rows have the same value	
 	mov winner, #0 		@winner = 0
-	mov fullRow, #0		@There's no winner yet
 
 	/*@Reload all the values
 	ldr column1, =column1
@@ -375,15 +356,12 @@ verifyDiagonals:
 
 		@Compare each value
 		cmp row1, row2 @if(row1 == row2)
+		cmpeq row3, row4 @if(row3 == row4)
+		cmpeq row1, row4 @if(row1 == row4 means there's a winner)
 		moveq winner, row1 @winner = row1
-		cmp row3, row4 @if(row3 == row4)
-		cmpeq winner, row4 @if(winner == row4)
-		moveq fullRow, #1	@The four rows have the same value
-		cmp fullRow, #1		@compares if all rows were filled with zeros
-		cmpeq winner, #0
+		cmp winner, #0
 		bne verifyFinish		 @If all rows have the same value	
 		mov winner, #0 		@winner = 0
-		mov fullRow, #0		@There's no winner yet
 
 	/*	
 	* Note: this part doesn't reset the values from memory
@@ -401,15 +379,12 @@ verifyDiagonals:
 		
 		@Compare each value
 		cmp row1, row2 @if(row1 == row2)
+		cmpeq row3, row4 @if(row3 == row4)
+		cmpeq row1, row4 @if(row1 == row4 means there's a winner)
 		moveq winner, row1 @winner = row1
-		cmp row3, row4 @if(row3 == row4)
-		cmpeq winner, row4 @if(winner == row4)
-		moveq fullRow, #1	@The four rows have the same value
-		cmp fullRow, #1		@compares if all rows were filled with zeros
-		cmpeq winner, #0
+		cmp winner, #0
 		bne verifyFinish		 @If all rows have the same value	
 		mov winner, #0 		@winner = 0
-		mov fullRow, #0		@There's no winner yet
 
 verifyFinish:
 	mov r0, winner @move the winner to r0
