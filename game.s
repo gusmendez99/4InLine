@@ -2,7 +2,6 @@
 	Universidad del Valle de Guatemala
 	Organizacion de computadoras y Assembler
 	Gustavo Mendez y Diego Estrada
-
 	- File: game.s
 ***********************************************/
 .data
@@ -31,9 +30,7 @@ enter: .asciz "\n"
 .align 2
 
 /*******************************
-
 		Player inputs
-
 *******************************/
 /*
  * @param r0: player number (1 or 2), @return: col number on r0
@@ -80,9 +77,7 @@ finishedInput:
 
 
 /*******************************
-
 		Game inserts
-
 *******************************/
 
 /**
@@ -227,10 +222,8 @@ printBoard:
 	mov pc, lr
 
 /*******************************
-
 		Verify winner methods
 		@Pending...
-
 *******************************/
 /*
  * @param nothing, @return: winner on r0 
@@ -441,4 +434,4 @@ verifyFinish:
 	.unreq winner
 	.unreq cont
 	pop {lr}
-	mov pc, lr @return r0
+mov pc, lr @return r0
