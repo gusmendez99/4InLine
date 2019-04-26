@@ -14,7 +14,9 @@ playerOneMessageInfo: .asciz "- El jugador 1 es representado por la letra 'x'.\n
 playerTwoMessageInfo: .asciz "- El jugador 2 representado por la letra 'o'.\n"
 emptyInputMessage: .asciz "- Espacio vacio representado por ' '.\n"
 winnerMessage: .asciz "NUEVO GANADOR: Jugador %d!\n"
-tieMessage: .asciz "Ha ocurrido un EMPATE!"
+tieMessage: .asciz "Ha ocurrido un EMPATE!\n"
+
+tieCounter:	.word 0
 
 .text
 .align 2
@@ -25,7 +27,7 @@ main:
 
 	winner .req r5
 	cont .req r6
-	mov cont, #0
+	tieCounter .req r7
 	mov winner, #0
 
 	/* Displaying welcome message  */
@@ -91,7 +93,10 @@ playerTwoInput:
 	cmp winner, #0	@If there's a tie
 	bne printWinner
 
+	ldr tieCounter, =tieCounter
+	ldr cont, [tieCounter]
 	add cont, #1
+	str cont, [tieCounter]
 	b verifyTie
 
 /*****************************************
@@ -101,25 +106,29 @@ playerTwoInput:
 
 *****************************************/
 verifyTie:
+	ldr tieCounter, =tieCounter
+	ldr cont, [tieCounter]
 	cmp cont, #8	
 	bne playerOneInput
 	beq printTie
 
-printTie:
-	ldr r0, =tieMessage
-	bl printf
-
-
 printWinner:
 	ldr r0, =winnerMessage
 	mov r1, winner
-	bl printf 
+	bl printf
+	b exit 
 
+printTie:
+	ldr r0, =tieMessage
+	bl printf
+	b exit
+	
 /*		END		*/
 exit:
 	@unlink variables
 	.unreq winner
 	.unreq cont
+	.unreq tieCounter
 	@OS exit
 	mov r0,#0
 	mov r3,#0

@@ -24,7 +24,7 @@ fullMatrixMessage: .asciz "--- La columna se encuentra llena! ---\n"
 
 @Inputs
 columnEntered: .asciz "%d"
-matrixRow: .asciz "|%d|"
+matrixRow: .asciz "|%c|"
 enter: .asciz "\n"
 
 .text
@@ -167,16 +167,44 @@ printBoard:
 		@Printing
 		ldr r0, =matrixRow
 		ldr r1, [column1]
+		cmp r1, #0
+		moveq r1, #' '
+		cmp r1, #1
+		moveq r1, #'x'
+		cmp r1, #2
+		moveq r1, #'o' 
 		bl printf
+	
 		ldr r0, =matrixRow
 		ldr r1, [column2]
+		cmp r1, #0
+		moveq r1, #' '
+		cmp r1, #1
+		moveq r1, #'x'
+		cmp r1, #2
+		moveq r1, #'o' 
 		bl printf
+
 		ldr r0, =matrixRow
 		ldr r1, [column3]
+		cmp r1, #0
+		moveq r1, #' '
+		cmp r1, #1
+		moveq r1, #'x'
+		cmp r1, #2
+		moveq r1, #'o' 
 		bl printf
+
 		ldr r0, =matrixRow
 		ldr r1, [column4]
+		cmp r1, #0
+		moveq r1, #' '
+		cmp r1, #1
+		moveq r1, #'x'
+		cmp r1, #2
+		moveq r1, #'o' 
 		bl printf
+
 		ldr r0, =enter
 		bl printf
 
@@ -235,7 +263,7 @@ getWinner:
 
 	mov cont, #0
 
-loopVertical:
+loopHorizontal:
 	@Load each value
 	ldr row1, [column1]
 	ldr row2, [column2]
@@ -258,9 +286,9 @@ loopVertical:
 	add column4, #4
 	add cont, #1 @cont++
 	cmp cont, #4 @while cont < 4
-	bne loopVertical 	@loop loopVertical
+	bne loopHorizontal 	@loop loopVertical
 
-loopHorizontal:
+loopVertical:
 	@Reload all the values
 	ldr column1, =column1
 	ldr column2, =column2
