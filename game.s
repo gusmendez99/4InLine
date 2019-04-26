@@ -45,32 +45,32 @@ input:
  	push {lr} @Save the link register
  	mov player, r0 @movs param to variable player
 
-	inputBody:
-		ldr r0, =inputColumnMessage @Loads input column message
-		mov r1, player @Loads player
-		bl printf @Display message
-		ldr r0, =columnEntered @load input format
-		ldr r1, =currentColumn @Load addres to store input
-		bl scanf @Store the input
-		ldr r0, =currentColumn @Load input column entered
-		ldr column, [r0] @Load input value
-		cmp column, #1 @if(column < 1)
-		blt wrongInput 
-		cmp column, #4 @else if(column > 4)
-		bgt wrongInput
-		ble finishedInput
+inputBody:
+	ldr r0, =inputColumnMessage @Loads input column message
+	mov r1, player @Loads player
+	bl printf @Display message
+	ldr r0, =columnEntered @load input format
+	ldr r1, =currentColumn @Load addres to store input
+	bl scanf @Store the input
+	ldr r0, =currentColumn @Load input column entered
+	ldr column, [r0] @Load input value
+	cmp column, #1 @if(column < 1)
+	blt wrongInput 
+	cmp column, #4 @else if(column > 4)
+	bgt wrongInput
+	ble finishedInput
 
-	wrongInput:
-		ldr r0, =errorMessage @Load error message
-		bl printf @Display error message
-		b inputBody @Go back to input inputBody
+wrongInput:
+	ldr r0, =errorMessage @Load error message
+	bl printf @Display error message
+	b inputBody @Go back to input inputBody
 
-	finishedInput:
-		mov r0, column @mov the column value to r0
-		.unreq player @Unlink the player variable from r5
-		.unreq column @Unlink the cplumn variable from r6
-		pop {lr} @Retrieve link register
-		mov pc, lr @Return r0
+finishedInput:
+	mov r0, column @mov the column value to r0
+	.unreq player @Unlink the player variable from r5
+	.unreq column @Unlink the cplumn variable from r6
+	pop {lr} @Retrieve link register
+	mov pc, lr @Return r0
 
 
 /*******************************
@@ -106,30 +106,31 @@ insertInput:
 	cmp column, #4 
 	ldreq column, =column4 
 	@mov columnInput, column @store memory address of column entered
+	mov count, #0
 
-	loopVector:
-		ldr box, [column] @load the current column element
-		cmp box, #0 @if element is empty
-		streq player, [column] @store the player in such element
-		beq finishedInsertInput @Go to finishedInsertInput
-		add column, #4
-		add count, #1
-		cmp count, #4 @if count != 4
-		bne loopVector @true go to loopVector
-		ldr r0, =fullMatrixMessage @ else, load fullMatrixMessage message
-		bl printf @displays message
+loopVector:
+	ldr box, [column] @load the current column element
+	cmp box, #0 @if element is empty
+	streq player, [column] @store the player in such element
+	beq finishedInsertInput @Go to finishedInsertInput
+	add column, #4
+	add count, #1
+	cmp count, #4 @if count != 4
+	bne loopVector @true go to loopVector
+	ldr r0, =fullMatrixMessage @ else, load fullMatrixMessage message
+	bl printf @displays message
 
-	finishedInsertInput:
-		@mov r0, columnInput @r0 = address of the vector
-		mov r0, column @r0 = address of the vector
-		@Unlink variables from registers
-		.unreq column
-		.unreq box
-		.unreq player
-		.unreq count
-		@.unreq columnInput
-		pop {lr} @Retrieve the link register
-		mov pc, lr @return r0
+finishedInsertInput:
+	@mov r0, columnInput @r0 = address of the vector
+	mov r0, column @r0 = address of the vector
+	@Unlink variables from registers
+	.unreq column
+	.unreq box
+	.unreq player
+	.unreq count
+	@.unreq columnInput
+	pop {lr} @Retrieve the link register
+	mov pc, lr @return r0
 
 .global printBoard
 printBoard:
