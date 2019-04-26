@@ -52,6 +52,11 @@ inputBody:
 	ldr r0, =columnEntered @load input format
 	ldr r1, =currentColumn @Load addres to store input
 	bl scanf @Store the input
+
+	@ compare y jump if r0 is 0 (error)
+	cmp r0,#0
+	beq wrongInput
+
 	ldr r0, =currentColumn @Load input column entered
 	ldr column, [r0] @Load input value
 	cmp column, #1 @if(column < 1)
@@ -63,6 +68,7 @@ inputBody:
 wrongInput:
 	ldr r0, =errorMessage @Load error message
 	bl printf @Display error message
+	bl getchar
 	b inputBody @Go back to input inputBody
 
 finishedInput:
