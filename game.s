@@ -261,6 +261,12 @@ loopVertical:
 	bne loopVertical 	@loop loopVertical
 
 loopHorizontal:
+	@Reload all the values
+	ldr column1, =column1
+	ldr column2, =column2
+	ldr column3, =column3
+	ldr column4, =column4
+
 	@load value from each value from the current column
 	ldr row1, [column1]
 	add column1, #4
